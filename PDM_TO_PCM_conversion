@@ -1,0 +1,116 @@
+
+----------------------------------------------------------------------------------
+-- Company: 
+-- Engineer: 
+-- 
+-- Create Date: 07/24/2017 12:42:44 PM
+-- Design Name: 
+-- Module Name: pdm1tocic8 - Behavioral
+-- Project Name: 
+-- Target Devices: 
+-- Tool Versions: 
+-- Description: 
+-- 
+-- Dependencies: 
+-- 
+-- Revision:
+-- Revision 0.01 - File Created
+-- Additional Comments:
+-- 
+----------------------------------------------------------------------------------
+
+
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+
+-- Uncomment the following library declaration if using
+-- arithmetic functions with Signed or Unsigned values
+--use IEEE.NUMERIC_STD.ALL;
+
+-- Uncomment the following library declaration if instantiating
+-- any Xilinx leaf cells in this code.
+--library UNISIM;
+--use UNISIM.VComponents.all;
+
+entity time_multiplexer is
+    Port ( pdm_data_0 : in STD_LOGIC;
+    pdm_data_1 : in STD_LOGIC;
+    pdm_data_2 : in STD_LOGIC;
+    pdm_data_3 : in STD_LOGIC;
+           clk : in std_logic;
+         start : in std_logic;
+       t_valid : out std_logic;
+        t_last : out std_logic;
+      t_tready : out std_logic;
+      cic_data : out STD_LOGIC_VECTOR (7 downto 0));
+end time_multiplexer;
+
+architecture Behavioral of time_multiplexer is
+
+signal count_number : integer range 0 to 4;
+signal pdm0_signal : std_logic ;
+signal pdm1_signal : std_logic ;
+signal pdm2_signal : std_logic ;
+signal pdm3_signal : std_logic ;
+signal t_valid_signal : std_logic := '0';
+signal t_last_signal : std_logic := '0';
+
+
+begin
+
+pdm0_signal <=  pdm_data_0;
+pdm1_signal <=  pdm_data_1;
+pdm2_signal <=  pdm_data_2;
+pdm3_signal <=  pdm_data_3;
+   t_tready <= '1';
+ t_last <=  t_last_signal; 
+ t_valid <=  t_valid_signal; 
+
+process(start)
+begin
+
+if (start = '1') then 
+     t_valid_signal <= '1';
+end if;
+
+end process;
+
+
+
+
+process(clk)
+begin
+
+  if(rising_edge(clk)) then   
+     if (count_number = 3 )then
+             count_number <= count_number + 1;
+               t_last_signal  <= '1';
+
+         elsif (count_number = 4 )then
+               count_number <= 1;
+              t_last_signal <= '0';
+            else
+               count_number <= count_number + 1;
+                
+     end if;
+  end if;
+
+end process;
+
+cic_data(7) <= '0';
+cic_data(6) <= '0';
+cic_data(5) <= '0';
+cic_data(4) <= '0';
+cic_data(3) <= '0';
+cic_data(2) <= '0';
+cic_data(0) <= '1';
+
+cic_data(1) <= pdm0_signal when (count_number = 1) else
+               pdm1_signal when (count_number = 2) else
+               pdm2_signal when (count_number = 3) else
+               pdm3_signal when (count_number = 4) else
+               '0';
+
+
+
+end Behavioral;
